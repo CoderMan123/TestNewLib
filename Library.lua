@@ -1123,8 +1123,8 @@ do
             end;
         end);
 
-        Library:GiveSignal(InputService.InputBegan:Connect(function(Input)
-            if (not Picking) then
+        Library:GiveSignal(InputService.InputBegan:Connect(function(Input, Processed)
+            if (not Picking) and not Processed then
                 if KeyPicker.Mode == 'Toggle' then
                     local Key = KeyPicker.Value;
 
@@ -3211,27 +3211,14 @@ function Library:CreateWindow(...)
         local oIcon = Mouse.Icon;
         local State = InputService.MouseIconEnabled;
 
-        local Cursor = Drawing.new('Triangle');
-        Cursor.Thickness = 1;
-        Cursor.Filled = true;
-
         while Outer.Visible and ScreenGui.Parent do
             local mPos = InputService:GetMouseLocation()
-
-            Cursor.Color = Library.AccentColor;
-            Cursor.PointA = Vector2.new(mPos.X, mPos.Y);
-            Cursor.PointB = Vector2.new(mPos.X, mPos.Y) + Vector2.new(6, 14);
-            Cursor.PointC = Vector2.new(mPos.X, mPos.Y) + Vector2.new(-6, 14);
-
-            Cursor.Visible = not InputService.MouseIconEnabled;
-
             RenderStepped:Wait();
         end;
-
-        Cursor:Remove();
     end
-
+	
     Library:GiveSignal(InputService.InputBegan:Connect(function(Input, Processed)
+		if Processed then return end
         if type(Library.ToggleKeybind) == 'table' and Library.ToggleKeybind.Type == 'KeyPicker' then
             if Input.UserInputType == Enum.UserInputType.Keyboard and Input.KeyCode.Name == Library.ToggleKeybind.Value then
                 task.spawn(Library.Toggle)
